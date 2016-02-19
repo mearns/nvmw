@@ -2,6 +2,25 @@
 #
 # nvmw - the nvm wrapper.
 #
+# ------------------------------------
+#
+# Copyright 2016 Brian Mearns <https://github.com/mearns/nvmw>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+#
+# ------------------------------------
+#
 # Ensure that a specified version of nvm is installed, and then use it to
 # ensure a specific version of nodejs is installed. Then execute the given
 # arguments with the desired node version selected (i.e., following an `nvm
@@ -116,7 +135,7 @@
 #
 # You shouldn't generally use the nvm wrapper to execute nvm. It may work in
 # particular cases, but, in particular, if you're overriding the node version
-# with the NODE_VERSION env vars, nvm itself does not consider this.
+# with the NODE_VERSION env var, nvm itself does not consider this.
 #
 
 

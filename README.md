@@ -36,6 +36,12 @@ Just drop `nvmw` into your project's root directory. That's it. Oh, and you need
 curl or wget installed. Other than that, it should work in pretty much any bash shell
 (possibly others).
 
+E.g.:
+
+```bash
+wget https://raw.githubusercontent.com/mearns/nvmw/v1.0.0/nvmw
+```
+
 ## Demo
 
 ```bash
