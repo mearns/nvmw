@@ -30,7 +30,13 @@ where nvmw stores things by setting the `NVMW_DIR` env var. For instance, you
 could set it to a system wide location so that nvmw and nvm cache everything
 in one location.
 
-Demo:
+## Installation
+
+Just drop `nvmw` into your project's root directory. That's it. Oh, and you need either
+curl or wget installed. Other than that, it should work in pretty much any bash shell
+(possibly others).
+
+## Demo
 
 ```bash
 $ pwd
@@ -115,7 +121,7 @@ $ ./nvmw which pm2
 /tmp/.nvmw/nvm/versions/node/v4.3.1/bin/pm2
 ```
 
-Limits:
+## Limits
 
 You shouldn't generally use the nvm wrapper to execute nvm. It may work in
 particular cases, but, in particular, if you're overriding the node version
