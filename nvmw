@@ -16,17 +16,17 @@
 # git revision specifier for the nvm repo (https://github.com/creationix/nvm),
 # including things like "master" and "HEAD".
 #
-# For status messages, set the NODEW_DEBUG variable to "1".
+# For status messages, set the NVMW_DEBUG variable to "1".
 #
-# Everything is stored in the .nodew directory in the same directory as this
+# Everything is stored in the .nvmw directory in the same directory as this
 # script is located (NOT necessarily the working directory). Versions of the
 # nvm.sh script are stored under there, and, when invoked through the nvm wrapper,
-# is configured to use .nodew/nvm as the NVM directory; all versions of
+# is configured to use .nvmw/nvm as the NVM directory; all versions of
 # node and related tools (e.g., npm), plus all "globally" installed npm modules
 # are stored there (assuming you use the wrapper to install them, like
 # `./nvmw npm install MODULE_NAME -g`). If you want, you can change the location
-# where nodew stores things by setting the NODEW_DIR env var. For instance, you
-# could set it to a system wide location so that nodew and nvm cache everything
+# where nvmw stores things by setting the NVMW_DIR env var. For instance, you
+# could set it to a system wide location so that nvmw and nvm cache everything
 # in one location.
 #
 # Demo:
@@ -34,9 +34,9 @@
 #   $ pwd
 #   /tmp
 #   $
-#   $ # Make sure no previous nodew things are in the way,
+#   $ # Make sure no previous nvmw things are in the way,
 #   $ # to get consistent output.
-#   $ rm -rf .nodew
+#   $ rm -rf .nvmw
 #   $ rm -f .nvmrc
 #   $
 #   $ # Specify which version of node we want to use, in the .nvmrc
@@ -75,9 +75,9 @@
 #   $ # Install npm modules.
 #   $ sudo ./nvmw npm install pm2 -g
 #   npm WARN optional dep failed, continuing fsevents@1.0.7
-#   /tmp/.nodew/nvm/versions/node/v4.3.1/bin/pm2 -> /tmp/.nodew/nvm/versions/node/v4.3.1/lib/node_modules/pm2/bin/pm2
-#   /tmp/.nodew/nvm/versions/node/v4.3.1/bin/pm2-dev -> /tmp/.nodew/nvm/versions/node/v4.3.1/lib/node_modules/pm2/bin/pm2-dev
-#   pm2@1.0.1 /tmp/.nodew/nvm/versions/node/v4.3.1/lib/node_modules/pm2
+#   /tmp/.nvmw/nvm/versions/node/v4.3.1/bin/pm2 -> /tmp/.nvmw/nvm/versions/node/v4.3.1/lib/node_modules/pm2/bin/pm2
+#   /tmp/.nvmw/nvm/versions/node/v4.3.1/bin/pm2-dev -> /tmp/.nvmw/nvm/versions/node/v4.3.1/lib/node_modules/pm2/bin/pm2-dev
+#   pm2@1.0.1 /tmp/.nvmw/nvm/versions/node/v4.3.1/lib/node_modules/pm2
 #   ├── ikt@0.0.0
 #   ├── eventemitter2@0.4.14
 #   ├── async@1.5.2
@@ -110,7 +110,7 @@
 #   ./nvmw: line 198: pm2: command not found
 #   $
 #   $ ./nvmw which pm2
-#   /tmp/.nodew/nvm/versions/node/v4.3.1/bin/pm2
+#   /tmp/.nvmw/nvm/versions/node/v4.3.1/bin/pm2
 #
 #
 # Limits:
@@ -124,35 +124,35 @@
 # Find the location of this script.
 DIR="$(command cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ -z "${NODEW_DIR}" ]
+if [ -z "${NVMW_DIR}" ]
 then
-  NODEW_DIR="${DIR}/.nodew"
+  NVMW_DIR="${DIR}/.nvmw"
 fi
 
 if [ -z "${NVM_VERSION}" ]
 then
-  NVM_VERSION="v0.31.0"
+  NVM_VERSION="0.31.0"
 fi
 
-if [ -z "${NODEW_DEBUG}" ]
+if [ -z "${NVMW_DEBUG}" ]
 then
-  NODEW_DEBUG="0"
+  NVMW_DEBUG="0"
 fi
 
 # Used by all future invocations of nvm (in this script) to indicate where it should look for the
 # installed node versions and other nvm maintained data.
-NVM_DIR="${NODEW_DIR}/nvm"
+NVM_DIR="${NVMW_DIR}/nvm"
 
 # This is where we want to store and look for the specific version of nvm.
-NVM_SH="${NODEW_DIR}/nvm-${NVM_VERSION}.sh"
+NVM_SH="${NVMW_DIR}/nvm-${NVM_VERSION}.sh"
 
 ##########################################################
 
 # Set up a status-reporting function.
-if [ "_${NODEW_DEBUG}" = "_1" ]
+if [ "_${NVMW_DEBUG}" = "_1" ]
 then
   status() {
-    echo "NODEW: $1"
+    echo "NVMW: $1"
   }
 else
   status() {
@@ -162,22 +162,22 @@ fi
 
 # Error reporting function.
 error() {
-  >&2 echo "NODEW: ERROR: $1"
+  >&2 echo "NVMW: ERROR: $1"
 }
 
 # Checks to see if a command $1 is executable. Exit code is 0 if it is, non-zero otherwise (command not found).
-nodew_has() {
+nvmw_has() {
     type "$1" > /dev/null 2>&1
 }
 
-# Echos the URL for downloading nvm.sh of the specified revision ($1).
-nodew_get_nvm_url() {
-    echo "https://raw.githubusercontent.com/creationix/nvm/$1/nvm.sh"
+# Echos the URL for downloading nvm.sh of the specified revision ($1, no leading 'v').
+nvmw_get_nvm_url() {
+    echo "https://raw.githubusercontent.com/creationix/nvm/v$1/nvm.sh"
 }
 
 # Echo the version of the nvm shell script specified in $1, assuming it exists.
 # Non-zero exit code if file doesn't exist, for failed to get --version with it.
-nodew_get_nvm_version() {
+nvmw_get_nvm_version() {
     _NVM_SH="$1"
     # Source the script and ask it for the version.
     _VERSION="$( . ${_NVM_SH} --no-use >/dev/null 2>&1 && nvm --version 2>/dev/null)"
@@ -196,11 +196,11 @@ nodew_get_nvm_version() {
 # Get the version from the nvm.sh specified in $1, checks against the version specified in $2.
 # Exit code 0 if we were able to get the version and it matched, otherwise non-zero (not a match
 # or unknown).
-nodew_test_nvm_version() {
+nvmw_test_nvm_version() {
     _NVM_SH="$1"
     _EXPECTED_VERSION="$2"
 
-    _NVM_VERSION="$( nodew_get_nvm_version "$1" )"
+    _NVM_VERSION="$( nvmw_get_nvm_version "$1" )"
     if [ $? -eq 0 ]
     then
         # Got the version successfully, check to see if it's correct.
@@ -218,10 +218,10 @@ nodew_test_nvm_version() {
 # Download nvm.sh version $2 to location $1.
 # Will use curl if available, otherwise wget. If neither
 # is available, errs (returns non-zero exit code).
-nodew_download_nvm() {
+nvmw_download_nvm() {
     _DEST="$1"
     _VERSION="$2"
-    _URL="$(nodew_get_nvm_url ${_VERSION})"
+    _URL="$(nvmw_get_nvm_url ${_VERSION})"
 
     _DEST_DIR="$( dirname "${_DEST}" )"
     status "Ensuring destination directory exists: ${_DEST_DIR}"
@@ -231,14 +231,14 @@ nodew_download_nvm() {
       return 1
     fi
 
-    if nodew_has "curl"
+    if nvmw_has "curl"
     then
         curl --progress-bar -q -o "${_DEST}" "${_URL}"
-    elif nodew_has "wget"
+    elif nvmw_has "wget"
     then
         wget --progress=bar -O "${_DEST}" "${_URL}"
     else
-        error 'nodew requires curl or wget in order to install nvm.sh.'
+        error 'nvmw requires curl or wget in order to install nvm.sh.'
         return 1
     fi
 }
@@ -247,12 +247,12 @@ nodew_download_nvm() {
 # If it's not installed, it will attempt to download it.
 # If the file is present, but doesn't appear to be the correct versin, will
 # print an error message and exit with non-zero exit code.
-nodew_ensure_nvm() {
+nvmw_ensure_nvm() {
     _NVM_SH="$1"
     _DESIRED_VERSION="$2"
 
     # See if it already exists with the correct version.
-    if ! nodew_test_nvm_version ${_NVM_SH} ${_DESIRED_VERSION}
+    if ! nvmw_test_nvm_version ${_NVM_SH} ${_DESIRED_VERSION}
     then
         # Wrong version, or doesn't exist.
         if [ -f ${_NVM_SH} ]
@@ -263,7 +263,7 @@ nodew_ensure_nvm() {
         else
             # File doesn't exist, so try to download it
             status "Required version of NVM does not exist. Downloading..."
-            nodew_download_nvm ${_NVM_SH} ${_DESIRED_VERSION} || return $?
+            nvmw_download_nvm ${_NVM_SH} ${_DESIRED_VERSION} || return $?
             status "NVM downloaded (${_NVM_SH})"
         fi
     fi
@@ -274,7 +274,7 @@ nodew_ensure_nvm() {
 # occurred attempting to run 'nvm use'.
 #
 # Assumes nvm.sh has already been sourced.
-nodew_nvm_has_node_version() {
+nvmw_nvm_has_node_version() {
     _NODE_VERSION="$1"
 
     # See if it's possible to use the selected version.
@@ -293,7 +293,7 @@ nodew_nvm_has_node_version() {
 
 # Make sure we have nvm installed.
 status "Making sure NVM is installed and correct version."
-nodew_ensure_nvm ${NVM_SH} ${NVM_VERSION} || exit $?
+nvmw_ensure_nvm ${NVM_SH} ${NVM_VERSION} || exit $?
 
 # Source nvm.sh
 status "Sourcing NVM."
@@ -301,16 +301,16 @@ status "Sourcing NVM."
 
 # See if the correct version of node is installed.
 status "Checking for correct version of node."
-if ! nodew_nvm_has_node_version $NODE_VERSION
+if ! nvmw_nvm_has_node_version $NODE_VERSION
 then
   # Not installed, so install it.
   status "Desired version of node is not installed. Installing..."
-  sudo su -c "NVM_DIR=$NVM_DIR . $NVM_SH --no-use && NVM_DIR=$NVM_DIR nvm install $NODE_VERSION" || exit 1
+  NVM_DIR=$NVM_DIR . $NVM_SH --no-use && NVM_DIR=$NVM_DIR nvm install $NODE_VERSION || exit 1
   status "...Node installed."
 fi
 
 # Use the version specified, and then execute the given arguments.
-if [ "_${NODEW_DEBUG}" = "_1" ]
+if [ "_${NVMW_DEBUG}" = "_1" ]
 then
   nvm use $NODE_VERSION --delete-prefix && "$@"
 else
