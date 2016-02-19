@@ -12,9 +12,8 @@
 # any .nvmrc file).
 #
 # You can also specify which version of NVM to use, with the NVM_VERSION env
-# var. Otherwise, a default value is used (hard-coded below). This can be any
-# git revision specifier for the nvm repo (https://github.com/creationix/nvm),
-# including things like "master" and "HEAD".
+# var. Otherwise, a default value is used (hard-coded below). This should be
+# a specific tagged version, excluding the leading 'v'.
 #
 # For status messages, set the NVMW_DEBUG variable to "1".
 #
