@@ -44,7 +44,7 @@ wget https://raw.githubusercontent.com/mearns/nvmw/v1.0.0/nvmw
 
 ## Demo
 
-```bash
+```console
 $ pwd
 /tmp
 $
